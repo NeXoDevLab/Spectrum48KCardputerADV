@@ -1,0 +1,9 @@
+.DS_Store
+.build*/
+tests/.build/
+*.ROM
+*.rom
+*.tap
+*.tzx
+*.sna
+*.z80
