@@ -84,6 +84,14 @@ void tapes() {
   t.pause();const auto at=t.position();t.advance(100000);assert(t.position()==at && !t.playing());t.resume();assert(t.playing());
   t.advance(2168u*8061);assert(t.level());t.advance(667);assert(!t.level());t.advance(735);assert(t.level());
   t.advance(855);assert(!t.level());t.advance(855);assert(t.level());
+  // The final checksum edge must survive the start of the inter-block pause.
+  assert(t.mount(tap,false));
+  t.advance(8063u*2168+667+735+2u*16*855);
+  assert(t.playing() && t.level());t.advance(3499);assert(t.level());
+  t.advance(1);assert(!t.level());
+  MemoryReader noPause(tzx({0x10,0,0,2,0,0,0}));
+  assert(t.mount(noPause,true));t.advance(8063u*2168+667+735+2u*16*855);
+  assert(!t.playing() && t.level());
   MemoryReader pure(tzx({0x14,10,0,20,0,1,0,0,1,0,0,0x80}));
   assert(t.mount(pure,true));t.advance(19);assert(!t.level());t.advance(1);assert(t.level());t.advance(20);assert(!t.playing() && !t.error());
   MemoryReader loop(tzx({0x24,2,0,0x12,10,0,2,0,0x25}));

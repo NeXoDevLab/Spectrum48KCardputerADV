@@ -15,7 +15,7 @@ public:
   const char *error() const {return error_;}
   uint32_t position() const {return reader_?reader_->position():0;}
 private:
-  enum class Phase { Block,Pilot,Sync1,Sync2,Data,Pause,Tone,Pulses,Direct };
+  enum class Phase { Block,Pilot,Sync1,Sync2,Data,Pause,PauseEnd,Tone,Pulses,Direct };
   Reader *reader_=nullptr;
   Phase phase_=Phase::Block;
   bool tzx_=false,playing_=false,level_=false,toggle_=false;

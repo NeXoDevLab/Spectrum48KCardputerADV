@@ -26,7 +26,7 @@ bool Tape::data(uint32_t length,uint8_t bits,uint16_t pause,Phase phase) {
 }
 bool Tape::block() {
   uint8_t h[20]{};
-  if(reader_->position()==reader_->size()) {playing_=false;level_=false;return false;}
+  if(reader_->position()==reader_->size()) {playing_=false;return false;}
   if(!tzx_) {
     if(!get(h,2)) return false;
     pilot_=2168;sync1_=667;sync2_=735;zero_=855;one_=1710;
@@ -130,8 +130,14 @@ bool Tape::next() {
       }
       case Phase::Pause:
         phase_=Phase::Block;
-        // Hold low through the inter-block pause. Zero means concatenate.
-        if(pauseMs_) {level_=false;toggle_=false;remaining_=pauseMs_*3500u;return true;}
+        // Preserve the final data edge for 1 ms before pulling EAR low.
+        // Pulling low immediately can cancel the last checksum bit's edge.
+        // Zero pause concatenates blocks without changing the signal level.
+        if(pauseMs_) {phase_=Phase::PauseEnd;toggle_=false;remaining_=3500;return true;}
+        break;
+      case Phase::PauseEnd:
+        phase_=Phase::Block;level_=false;toggle_=false;
+        if(pauseMs_>1) {remaining_=(pauseMs_-1)*3500u;return true;}
         break;
       case Phase::Tone:
         if(count_) {--count_;remaining_=pilot_;return true;}

@@ -6,13 +6,34 @@ Necesitas un Cardputer ADV, una microSD FAT32, una ROM de Spectrum 48K de
 16384 bytes y tus juegos de Spectrum. Esta versión no contiene la ROM ni juegos.
 
 1. Copia tu ROM con el nombre exacto `/SPECTRUM/48.ROM`.
-2. Crea `/SPECTRUM/GAMES/` y copia allí tus TAP/TZX/SNA/Z80, en subcarpetas
-   si quieres. No copies las ROMs o juegos de CPC en esta carpeta.
-3. Si tienes M5Launcher, copia `Spectrum48K-CardputerADV-V0.1-app.bin` y elige
+2. Copia los juegos en las carpetas de su formato:
+
+   ```text
+   SPECTRUM/
+   ├── 48.ROM
+   └── GAMES/
+       ├── TAP/
+       ├── TZX/
+       ├── SNA/
+       └── Z80/
+   ```
+
+   Puedes extraer el ZIP `Spectrum48K-CardputerADV-V0.2-SD.zip` en la raíz de
+   la tarjeta: incluye las carpetas y el BIN, sin ROM ni juegos. Las carpetas
+   de Amstrad pueden convivir con estas en la misma SD.
+3. Si tienes M5Launcher, copia `Spectrum48K-CardputerADV-V0.2-app.bin` y elige
    instalarlo desde Launcher. Conserva el firmware de Amstrad en la SD para
    poder cambiar entre ambos con Launcher.
 4. Reinicia y espera el arranque de BASIC. Si falla SD o ROM aparece un mensaje.
 5. Pulsa Tab, selecciona un archivo con las flechas y pulsa Enter.
+
+V0.2 organiza los juegos con el mismo criterio que Amstrad. En cada arranque
+crea `GAMES/TAP`, `TZX`, `SNA` y `Z80` aunque `GAMES` ya existiera, y mueve a
+ellas los archivos sueltos de `GAMES`. También separa las instantáneas que
+había en `GAMES/SNAPSHOTS`. Si el destino ya existe, conserva ambos archivos
+en sus ubicaciones; no los sobrescribe. Respeta las subcarpetas personales.
+El selector oculta los auxiliares `._` de macOS y mantiene visibles las
+carpetas aunque una lista de juegos supere el límite de 128 entradas.
 
 El BIN es solo la aplicación. Para una primera instalación sin Launcher,
 compila y sube con Arduino IDE/CLI: así se generan también el arranque y la
@@ -61,8 +82,11 @@ Un TZX puede incluir una orden de parada. Reanúdalo con Fn+T. Si aparece
 «Bloque TZX no implementado», utiliza una edición con un cargador compatible
 o una instantánea de 48K. Los bloques CSW y generalized data no están soportados.
 
-El reinicio automático y la secuencia `LOAD ""` están pendientes de comprobar
-con ROMs reales. Para repetirlos manualmente, pausa la cinta con Fn+T, pasa a
+La secuencia `LOAD ""` se ha verificado en ordenador con una ROM 48K y un
+programa BASIC que se carga y se ejecuta desde TAP y TZX. V0.2 conserva durante
+1 ms el último flanco antes de bajar la señal en la pausa, corrigiendo el fallo
+de checksum de V0.1 que impedía completar la carga. Para repetir la orden
+manualmente, pausa la cinta con Fn+T, pasa a
 teclado BASIC con Fn+J, introduce la orden y vuelve a pulsar Fn+T.
 
 ## Teclado de BASIC
@@ -115,7 +139,7 @@ python3 scripts/capture-device.py /dev/cu.usbmodemTU_PUERTO captura.png
 
 La captura contiene la imagen emulada, sin los avisos superpuestos de volumen
 o controles. La transferencia pausa brevemente emulación y audio. Cierra antes
-el monitor serie y el selector. No se incluyen capturas físicas en V0.1.
+el monitor serie y el selector. No se incluyen capturas físicas en V0.2.
 
 ## Pruebas en ordenador
 
@@ -126,6 +150,16 @@ sh tests/run_host.sh
 Necesitas un compilador C/C++ con AddressSanitizer y UBSan. La prueba crea
 medios sintéticos y una imagen PPM en `tests/.build/synthetic-screen.ppm`.
 No utiliza ROMs comerciales y no certifica compatibilidad con juegos reales.
+
+Para la prueba opcional con tu ROM de 48K:
+
+```sh
+sh tests/run_host.sh /ruta/a/48.ROM
+```
+
+Además de las pruebas sintéticas, ejecuta LD-BYTES con cabeceras y datos,
+rechaza un checksum incorrecto y carga un programa BASIC desde TAP y TZX hasta
+verificar su ejecución. La ROM solo se lee de esa ruta y no se distribuye.
 
 [Estado de validación](../VALIDACION.md) ·
 [Documentación oficial del Cardputer ADV](https://docs.m5stack.com/en/core/Cardputer-Adv).

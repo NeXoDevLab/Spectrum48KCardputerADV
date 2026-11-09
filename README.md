@@ -1,13 +1,19 @@
 # Sinclair ZX Spectrum 48K para Cardputer ADV
 
-Primera versión del emulador del **ZX Spectrum 48K clásico**, el de teclas de
+Emulador del **ZX Spectrum 48K clásico**, el de teclas de
 goma, para **M5Stack Cardputer ADV**. Proyecto C++/Arduino independiente del
 emulador de Amstrad CPC 464.
 
-**V0.1 · compilación y pruebas de núcleo verificadas · pendiente de prueba física.**
+**V0.2 · compilación y pruebas de núcleo verificadas · pendiente de prueba física.**
 
-[Firmware para M5Launcher](firmware/Spectrum48K-CardputerADV-V0.1-app.bin) ·
+[Firmware para M5Launcher](firmware/Spectrum48K-CardputerADV-V0.2-app.bin) ·
+[ZIP con estructura de SD](firmware/Spectrum48K-CardputerADV-V0.2-SD.zip) ·
 [Guía en español](docs/GUIA.md) · [Validación y límites](VALIDACION.md)
+
+**V0.2 corrige la carga TAP que terminaba sin arrancar el programa.** La pausa
+entre bloques conservaba mal el último flanco del checksum. Se ha reproducido
+el fallo y verificado la corrección con la rutina LD-BYTES de una ROM 48K y con
+un programa BASIC que carga y se ejecuta desde TAP y TZX.
 
 ## Incluye
 
@@ -31,15 +37,20 @@ emulador de Amstrad CPC 464.
 /SPECTRUM/48.ROM                exactamente 16384 bytes
 /SPECTRUM/GAMES/TAP/            tus cintas .tap
 /SPECTRUM/GAMES/TZX/            tus cintas .tzx
-/SPECTRUM/GAMES/SNAPSHOTS/      tus instantáneas .sna o .z80
+/SPECTRUM/GAMES/SNA/            tus .sna
+/SPECTRUM/GAMES/Z80/            tus .z80
 ```
 
-Puedes dejar juegos directamente en `GAMES/` o crear más subcarpetas. Las
-carpetas se crean al arrancar si no existen. La ROM y los juegos **no se
+El mismo esquema que en Amstrad: ROM en la carpeta del sistema y juegos por
+formato dentro de `GAMES/`. Al arrancar se crean las cuatro subcarpetas aunque
+`GAMES/` ya existiera. Los juegos sueltos de `GAMES/` y las instantáneas de la
+antigua carpeta `SNAPSHOTS/` se trasladan a la carpeta de su formato. Las
+colisiones se conservan sin sobrescribir y las subcarpetas personales siguen
+accesibles. La ROM y los juegos **no se
 incluyen** en el código ni en el BIN. Los archivos de Amstrad no sirven para
 esta máquina, aunque algunas extensiones se parezcan.
 
-Para M5Launcher, copia el archivo `firmware/Spectrum48K-CardputerADV-V0.1-app.bin`
+Para M5Launcher, copia el archivo `firmware/Spectrum48K-CardputerADV-V0.2-app.bin`
 a la tarjeta e instálalo desde Launcher. Es un **BIN de aplicación**, no una
 imagen de flash completa. [Instalación detallada](docs/GUIA.md#instalar).
 
@@ -84,10 +95,18 @@ sh tests/run_host.sh
 El primer script compila y actualiza el BIN y `SHA256SUMS`. El segundo comprueba
 el núcleo con AddressSanitizer y UBSan. No instala nada en el Cardputer.
 
-## Alcance de V0.1
+Prueba de carga completa con tu ROM de 48K, que no se copia al repositorio:
 
-Es una base compilada, **todavía no validada con una ROM y juegos reales ni en
-el dispositivo**. No se afirma compatibilidad general ni velocidad real
+```sh
+sh tests/run_host.sh /ruta/a/48.ROM
+python3 scripts/package-sd.py
+```
+
+## Alcance de V0.2
+
+Se han validado en ordenador el arranque de una ROM 48K y la carga y ejecución
+de un programa BASIC desde TAP y TZX. **Faltan juegos comerciales y la prueba
+física de V0.2 en el dispositivo**. No se afirma compatibilidad general ni velocidad real
 garantizada. Faltan contención de memoria, floating bus, efectos raster precisos,
 Spectrum 128K/AY, guardado y algunos bloques TZX. El modo rápido acelera el reloj
 de emulación tanto como permita el hardware; no sustituye la carga por pulsos

@@ -17,6 +17,8 @@ el núcleo CPC de Tom Walker en este proyecto de Spectrum.
 La memoria, ULA, teclado, cassette, formatos de instantánea y adaptación al
 Cardputer se han escrito para este proyecto. La integración de hardware utiliza
 como referencia el proyecto Amstrad del mismo espacio de trabajo.
+La organización de carpetas adapta su política de listado acotado, navegación
+y movimiento sin sobrescritura, con cuatro formatos propios de Spectrum.
 
 ## Dependencias Arduino
 
@@ -32,5 +34,6 @@ conservan las licencias incluidas en sus distribuciones. No se vendorizan aquí.
 - [Análisis de LD-BYTES de la ROM](https://skoolkid.github.io/rom/asm/0556.html).
 
 Las referencias documentan el comportamiento. No se distribuye la ROM del
-Spectrum, sus gráficos ni juegos. Las pruebas generan únicamente datos y
-programas sintéticos.
+Spectrum, sus gráficos ni juegos. Las pruebas generan datos y programas
+sintéticos. La prueba opcional `tests/rom_tap.cpp` lee una ROM externa que
+aporta quien ejecuta las pruebas; no la copia al proyecto ni al firmware.

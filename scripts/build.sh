@@ -12,6 +12,6 @@ if ! command -v "$zx_cli" >/dev/null 2>&1; then
 fi
 zx_fqbn='m5stack:esp32:m5stack_cardputer:PSRAM=disabled,FlashMode=qio,FlashSize=8M,PartitionScheme=default_8MB,USBMode=hwcdc,CDCOnBoot=cdc'
 "$zx_cli" compile --fqbn "$zx_fqbn" --build-path "$zx_root/.build-verified" "$zx_root"
-cp "$zx_root/.build-verified/Spectrum48KCardputerADV.ino.bin" "$zx_root/firmware/Spectrum48K-CardputerADV-V0.1-app.bin"
+cp "$zx_root/.build-verified/Spectrum48KCardputerADV.ino.bin" "$zx_root/firmware/Spectrum48K-CardputerADV-V0.2-app.bin"
 cd "$zx_root/firmware"
-shasum -a 256 Spectrum48K-CardputerADV-V0.1-app.bin > SHA256SUMS
+shasum -a 256 Spectrum48K-CardputerADV-V0.2-app.bin > SHA256SUMS

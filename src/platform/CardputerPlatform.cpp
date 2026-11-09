@@ -1,4 +1,5 @@
 #include "CardputerPlatform.h"
+#include "GameFiles.h"
 #include "../core/Spectrum.h"
 #include "../core/Snapshot.h"
 #include "../core/Tape.h"
@@ -15,7 +16,7 @@
 
 namespace {
 using namespace spectrum;
-constexpr const char *kRoot="/SPECTRUM/GAMES";
+constexpr const char *kRoot=spectrum_files::kRoot;
 Machine machine;
 Tape tape;
 bool ready=false,fast=false,border=false,game=false,tapeSound=true;
@@ -26,6 +27,21 @@ String notice;
 unsigned autoTicks=0;
 bool autoLoad=false,lastTab=false,shortcuts[6]{};
 String folder=kRoot;
+struct SdStorage final : spectrum_files::Storage {
+  bool scan(const char *path,spectrum_files::Visitor visitor,void *context) override {
+    File dir=SD.open(path);if(!dir || !dir.isDirectory()) return false;
+    for(;;) {
+      File item=dir.openNextFile();if(!item) break;
+      const String name=item.name();const bool directory=item.isDirectory();
+      item.close();visitor(context,name.c_str(),directory);
+    }
+    dir.close();return true;
+  }
+  bool exists(const char *path) override {return SD.exists(path);}
+  bool directory(const char *path) override {File file=SD.open(path);return file && file.isDirectory();}
+  bool mkdir(const char *path) override {return SD.mkdir(path);}
+  bool move(const char *from,const char *to) override {return !SD.exists(to) && SD.rename(from,to);}
+} storage;
 
 // Buffered SD access avoids one filesystem call for every tape byte.
 class SdReader final : public Reader {
@@ -164,23 +180,11 @@ bool loadFile(const String &path) {
 }
 struct Entry {String name;bool directory;};
 std::vector<Entry> scan(bool &more) {
-  std::vector<Entry> list;list.reserve(128);more=false;
-  File dir=SD.open(folder);
-  if(!dir || !dir.isDirectory()) {notify("Carpeta no disponible");return list;}
-  for(;;) {
-    File item=dir.openNextFile();if(!item) break;
-    String name=item.name();name=name.substring(name.lastIndexOf('/')+1);
-    const bool directory=item.isDirectory();item.close();
-    if(!name.length() || name[0]=='.' || name.indexOf('/')>=0) continue;
-    String lower=name;lower.toLowerCase();
-    if(!directory && !lower.endsWith(".tap") && !lower.endsWith(".tzx") && !lower.endsWith(".sna") && !lower.endsWith(".z80")) continue;
-    if(list.size()==128) {more=true;continue;}
-    list.push_back({name,directory});
-  }
-  std::sort(list.begin(),list.end(),[](const Entry &a,const Entry &b) {
-    return a.directory!=b.directory?a.directory:a.name.compareTo(b.name)<0;
-  });
+  const auto files=spectrum_files::list(storage,folder.c_str());
+  std::vector<Entry> list;list.reserve(files.entries.size()+1);more=files.more;
+  if(!files.ok) {notify("Carpeta no disponible");return list;}
   if(folder!=kRoot) list.insert(list.begin(),{"[..] Volver",true});
+  for(const auto &entry:files.entries) list.push_back({entry.name.c_str(),entry.directory});
   return list;
 }
 String clipped(String text) {
@@ -218,7 +222,7 @@ void menu() {
     previousTab=k.tab;
     const int movement=(k.up||held(';'))?-1:(k.down||held('.'))?1:(k.left||held(','))?-6:(k.right||held('/'))?6:0;
     if(movement && (movement!=previousMove || millis()-moveAt>180)) {
-      if(!list.empty()) selected=size_t(std::max(0,std::min(int(list.size())-1,int(selected)+movement)));
+      selected=spectrum_files::navigate(selected,list.size(),movement==-1||movement==1?movement:0,movement==-6?-1:movement==6?1:0);
       moveAt=millis();drawMenu(list,selected,more);
     }
     previousMove=movement;
@@ -233,13 +237,13 @@ void menu() {
     }
     const bool back=k.backspace||k.del;
     if(back && !previousBack && folder!=kRoot) {
-      folder=folder.substring(0,folder.lastIndexOf('/'));list=scan(more);selected=0;redraw=true;
+      folder=spectrum_files::parent(folder.c_str()).c_str();list=scan(more);selected=0;redraw=true;
     }
     previousBack=back;
     if(k.enter && !previousEnter && !list.empty()) {
       if(list[selected].directory) {
-        if(list[selected].name=="[..] Volver") folder=folder.substring(0,folder.lastIndexOf('/'));
-        else folder+="/"+list[selected].name;
+        if(list[selected].name=="[..] Volver") folder=spectrum_files::parent(folder.c_str()).c_str();
+        else folder=spectrum_files::child(folder.c_str(),list[selected].name.c_str()).c_str();
         list=scan(more);selected=0;redraw=true;
       } else {
         message("Leyendo archivo...",clipped(list[selected].name));
@@ -329,14 +333,14 @@ void begin() {
     message("Falta la ROM de 48K","/SPECTRUM/48.ROM: 16384 bytes");return;
   }
   rom.close();
-  if(!SD.exists("/SPECTRUM/GAMES")) {
-    SD.mkdir("/SPECTRUM/GAMES");
-    SD.mkdir("/SPECTRUM/GAMES/TAP");SD.mkdir("/SPECTRUM/GAMES/TZX");SD.mkdir("/SPECTRUM/GAMES/SNAPSHOTS");
-  }
+  const auto organized=spectrum_files::organize(storage);
+  Serial.printf("ZX folders ready=%u TAP=%u TZX=%u SNA=%u Z80=%u collisions=%u failed=%u\n",
+    organized.ready,organized.tap,organized.tzx,organized.sna,organized.z80,organized.skipped,organized.failed);
+  if(organized.failed) notify("Revisar carpetas SD (ver USB)");
   machine.tape=&tape;machine.audio=audioSink;machine.reset();
   if(xTaskCreatePinnedToCore(lcdWorker,"zx_lcd",4096,nullptr,1,&lcdTaskHandle,0)!=pdPASS) lcdTaskHandle=nullptr;
   ready=true;deadline=micros();
-  Serial.printf("ZX-ADV V0.1 ready heap=%u PSRAM=%u ROM=SD\n",ESP.getFreeHeap(),ESP.getPsramSize());
+  Serial.printf("ZX-ADV V0.2 ready heap=%u PSRAM=%u ROM=SD\n",ESP.getFreeHeap(),ESP.getPsramSize());
 }
 void tick() {
   if(!ready) {M5Cardputer.update();delay(20);return;}
