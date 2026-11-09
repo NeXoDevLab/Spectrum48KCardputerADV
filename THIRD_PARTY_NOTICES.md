@@ -13,6 +13,8 @@ la dirección completa de 16 bits. IN/OUT inmediatos usan el acumulador como
 byte alto; las instrucciones con `(C)` usan BC; OUTI/OUTD usan B decrementado.
 Los archivos modificados llevan un comentario de identificación. No se utiliza
 el núcleo CPC de Tom Walker en este proyecto de Spectrum.
+En V0.3 se añade una directiva GCC O3 para el intérprete al compilar para ESP32;
+no cambia las instrucciones emuladas. La procedencia permanece en UPSTREAM.txt.
 
 La memoria, ULA, teclado, cassette, formatos de instantánea y adaptación al
 Cardputer se han escrito para este proyecto. La integración de hardware utiliza

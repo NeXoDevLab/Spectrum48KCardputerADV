@@ -4,11 +4,18 @@ Emulador del **ZX Spectrum 48K clásico**, el de teclas de
 goma, para **M5Stack Cardputer ADV**. Proyecto C++/Arduino independiente del
 emulador de Amstrad CPC 464.
 
-**V0.2 · compilación y pruebas de núcleo verificadas · pendiente de prueba física.**
+**V0.3 · audio y pantalla optimizados · instalada y comprobada en Cardputer ADV.**
 
-[Firmware para M5Launcher](firmware/Spectrum48K-CardputerADV-V0.2-app.bin) ·
-[ZIP con estructura de SD](firmware/Spectrum48K-CardputerADV-V0.2-SD.zip) ·
+[Firmware para M5Launcher](firmware/Spectrum48K-CardputerADV-V0.3-app.bin) ·
+[ZIP con estructura de SD](firmware/Spectrum48K-CardputerADV-V0.3-SD.zip) ·
 [Guía en español](docs/GUIA.md) · [Validación y límites](VALIDACION.md)
+
+**V0.3 desacopla el audio de la CPU y de la LCD:** una tarea independiente
+alimenta el altavoz en paquetes de 10 ms, con una reserva de 40 ms y sin
+descartar paquetes porque el altavoz esté ocupado. La pantalla reutiliza las
+filas ya filtradas y mantiene exactamente los mismos píxeles RGB565. La SD
+lee bloques de 2 KiB y evita los seeks redundantes. El USB muestra los tiempos
+y los contadores de audio, pantalla y SD.
 
 **V0.2 corrige la carga TAP que terminaba sin arrancar el programa.** La pausa
 entre bloques conservaba mal el último flanco del checksum. Se ha reproducido
@@ -30,6 +37,7 @@ un programa BASIC que carga y se ejecuta desde TAP y TZX.
 - Beeper y monitor de cassette; volumen inicial del 30%.
 - Controles Kempston, Sinclair 1, Cursor y QAOP+espacio.
 - Capturas USB y pruebas en ordenador sin ROMs ni juegos.
+- Prueba de audio por USB de cinco segundos, conservando el estado del juego.
 
 ## Preparar la tarjeta
 
@@ -50,7 +58,7 @@ accesibles. La ROM y los juegos **no se
 incluyen** en el código ni en el BIN. Los archivos de Amstrad no sirven para
 esta máquina, aunque algunas extensiones se parezcan.
 
-Para M5Launcher, copia el archivo `firmware/Spectrum48K-CardputerADV-V0.2-app.bin`
+Para M5Launcher, copia el archivo `firmware/Spectrum48K-CardputerADV-V0.3-app.bin`
 a la tarjeta e instálalo desde Launcher. Es un **BIN de aplicación**, no una
 imagen de flash completa. [Instalación detallada](docs/GUIA.md#instalar).
 
@@ -102,12 +110,13 @@ sh tests/run_host.sh /ruta/a/48.ROM
 python3 scripts/package-sd.py
 ```
 
-## Alcance de V0.2
+## Alcance de V0.3
 
 Se han validado en ordenador el arranque de una ROM 48K y la carga y ejecución
-de un programa BASIC desde TAP y TZX. **Faltan juegos comerciales y la prueba
-física de V0.2 en el dispositivo**. No se afirma compatibilidad general ni velocidad real
-garantizada. Faltan contención de memoria, floating bus, efectos raster precisos,
+de un programa BASIC desde TAP y TZX. En el Cardputer se han comprobado el
+arranque, el audio mediante un programa Z80 sintético y el refresco de la LCD.
+**Falta comprobar cada juego comercial y la carga múltiple en el dispositivo.**
+Faltan contención de memoria, floating bus, efectos raster precisos,
 Spectrum 128K/AY, guardado y algunos bloques TZX. El modo rápido acelera el reloj
 de emulación tanto como permita el hardware; no sustituye la carga por pulsos
 por una carga instantánea. [Lista exacta](VALIDACION.md).

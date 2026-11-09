@@ -14,6 +14,10 @@ zx_cxx=${CXX:-c++}
 "$zx_cxx" -std=c++17 -O2 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer \
   "$zx_root/tests/game_files.cpp" "$zx_root/src/platform/GameFiles.cpp" -o "$zx_root/tests/.build/game_files"
 "$zx_root/tests/.build/game_files" "$zx_root/tests/.build/game-files-card"
+"$zx_cxx" -std=c++17 -O2 -g -Wall -Wextra -Werror -pthread -fsanitize=address,undefined -fno-omit-frame-pointer \
+  "$zx_root/tests/realtime.cpp" "$zx_root/src/core/Spectrum.cpp" "$zx_root/src/core/Tape.cpp" \
+  "$zx_root/tests/.build/z80.o" -o "$zx_root/tests/.build/realtime"
+"$zx_root/tests/.build/realtime"
 if [ "$#" -gt 0 ]; then
   "$zx_cxx" -std=c++17 -O2 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer \
     "$zx_root/tests/rom_tap.cpp" "$zx_root/src/core/Spectrum.cpp" "$zx_root/src/core/Tape.cpp" \

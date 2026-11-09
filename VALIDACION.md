@@ -1,4 +1,48 @@
-# Validación · V0.2 · 9 de noviembre de 2026
+# Validación · V0.3 · 9 de noviembre de 2026
+
+## Audio y rendimiento de V0.3
+
+V0.2 entregaba el PCM desde el callback de emulación en paquetes de 320
+muestras. El generador podía quedarse esperando al siguiente frame antes de
+completar un paquete de 20 ms, y descartaba paquetes si el altavoz ya tenía dos
+en cola. El contador antiguo solo indicaba descartes, no falta de muestras.
+
+V0.3 utiliza una FIFO de un productor y un consumidor. El callback publica
+paquetes de 160 muestras sin llamar al altavoz. Una tarea de prioridad 3 en
+core 0 alimenta M5.Speaker; su tarea I2S tiene prioridad 4 y la LCD prioridad 1.
+La emulación conserva unos 40 ms de muestras y se regula con el consumo de
+audio. Las esperas largas tienen un límite y un contador; no bloquean el bucle
+indefinidamente. Al abrir el menú, capturar o cambiar de juego se detiene el
+consumidor antes de vaciar la cola y reutilizar sus buffers.
+
+El filtro LCD separa la reducción horizontal y vertical, decodifica cada
+atributo una vez por ocho píxeles y reutiliza tres filas. Los pesos reducidos
+permiten sustituir las divisiones por desplazamientos sin cambiar el redondeo
+RGB565. Se envían bloques de cuatro filas a la pantalla. La lectura SD pasa de
+512 a 2048 bytes y evita buscar de nuevo si el archivo ya está en la posición
+correcta. El núcleo y el intérprete Z80 usan O3 solo en el ESP32.
+
+Pruebas adicionales con AddressSanitizer y UBSan:
+
+- Propiedad y orden de 1,92 millones de muestras entre dos hilos; wraparound,
+  cola llena y borrado de un paquete parcial.
+- Simulación de 60 segundos a 16 kHz con fracciones de frame PAL y pausas de
+  25 ms: 959840 muestras consumidas, cero huecos y cero descartes.
+- 500 frames producen exactamente 159744 muestras. El modo rápido omite audio.
+- Todos los píxeles de cinco pantallas aleatorias coinciden con la referencia,
+  con y sin borde y con ambos estados de FLASH.
+- Siguen pasando SNA/Z80, organización de carpetas y las cargas TAP/TZX con ROM.
+
+La comparación en el ordenador de desarrollo produjo estos tiempos de filtro:
+
+| Vista | V0.2 | V0.3 | Resultado |
+| --- | --- | --- | --- |
+| Área activa | 0,409 ms/frame | 0,143 ms/frame | 2,9 veces más rápido |
+| Con borde | 0,398 ms/frame | 0,148 ms/frame | 2,7 veces más rápido |
+
+Los hashes RGB565 coinciden (`b5ad398d` y `a88aff25`). Son mediciones en el
+ordenador, no equivalencias de velocidad del ESP32; la prueba es reproducible
+con `tests/run_benchmark.sh` y su argumento opcional de árbol de fuentes.
 
 ## Corrección de la carga TAP
 
@@ -17,11 +61,10 @@ con una ROM externa, sin incluir la ROM en el proyecto ni en el firmware.
 ## Resultado comprobado
 
 - Compilación Arduino para **M5Stack Cardputer ADV / ESP32-S3**, finalizada sin errores.
-- Programa: **637815 bytes**, 19% del espacio de aplicación del perfil utilizado.
-- Variables globales: **102204 bytes**, 31% de SRAM; quedan 225476 bytes antes
+- Programa: **677467 bytes**, 20% del perfil; BIN de aplicación: **677616 bytes**.
+- Variables globales: **122764 bytes**, 37% de SRAM; quedan 204916 bytes antes
   de las reservas dinámicas de los controladores y de las tareas.
-- BIN de aplicación: **637968 bytes**. `esptool image-info` reconoce ESP32-S3,
-  flash de 8 MB y valida checksum y hash internos.
+- `esptool` reconoce ESP32-S3 y flash de 8 MB y verifica el hash al instalar.
 - `shasum -a 256 -c SHA256SUMS`: **OK**.
 - `sh tests/run_host.sh`: **OK**, con AddressSanitizer y UBSan.
 - Prueba opcional `sh tests/run_host.sh /ruta/a/48.ROM`: **OK** en el entorno
@@ -113,22 +156,41 @@ Las instantáneas se leen primero en un espacio temporal de 48 KiB. Solo se
 aplican después de validar el archivo completo: un archivo corrupto o truncado
 no sustituye el estado de la máquina. Si falta memoria, se muestra un error.
 
-## Pendiente de validar
+## Validación física
 
-No se ha instalado V0.2 en un Cardputer durante esta tarea. Quedan pendientes:
+V0.3 se ha instalado en el Cardputer ADV conectado. Antes se guardó una copia
+de la aplicación y se verificó que coincidía byte por byte con V0.2. La tabla
+de particiones y ambas entradas OTA confirmaron que Spectrum era la aplicación
+activa, en la partición `spectr` de 1 MiB. Se escribió solo esa aplicación y
+esptool confirmó el hash. No se modificaron Launcher, otras apps, NVS ni la SD.
 
-1. Arranque físico en Sinclair BASIC y lectura de la SD.
-2. Carga completa y ejecución de juegos reales por TAP y TZX en el Cardputer.
-3. Reanudación de una carga múltiple desde el juego.
-4. Teclado físico, Fn, navegación y los cuatro tipos de control con juegos.
-5. Volumen, continuidad y calidad del beeper y del monitor de cinta.
-6. Medición de velocidad real, uso de heap y carga de la LCD en el ESP32-S3.
-7. Instalación desde M5Launcher y captura USB real.
+El dispositivo arranca con la ROM de la SD y responde como `ZX-ADV V0.3`.
+La prueba USB `b` ejecuta un Z80 sintético durante 250 frames con audio, teclado
+y LCD activos, y después reanuda la máquina anterior. Los contadores miden la
+continuidad de la entrega; no sustituyen una evaluación acústica de cada juego.
 
-La emulación y la LCD tienen tareas separadas; se publican copias de los 6912
-bytes de pantalla y de los bordes. Los paquetes de audio usan tres buffers
-persistentes y se cuentan los descartes en el diagnóstico USB. Esto describe
-la implementación; todavía no acredita rendimiento ni audio correctos en hardware.
+Resultados de la compilación final, instalada y con hash verificado:
+
+| Medida física | Resultado |
+| --- | --- |
+| Prueba Z80 con tono, teclado y LCD | 250 frames en 4953 ms; la reserva inicial permite adelantar algunos frames |
+| CPU del tono | Media 6462 µs/frame; máximo 7638 µs |
+| Entrega de audio | 496 paquetes; cero underruns, descartes, errores o timeouts |
+| Mayor separación de entregas | 11041 µs, para paquetes de 10 ms |
+| Filtro LCD durante el tono | 20267 µs; antes de la optimización final superaba 51 ms |
+| SPI de la LCD durante el tono | 14302 µs |
+| BASIC, ventana estable de 5,171 s | 259 frames de emulación (50,09/s) y 128 de LCD (24,75/s) |
+| Contadores tras la ventana estable | Todos los de incidencias de audio siguen en cero |
+
+El diagnóstico observó también cambios físicos de volumen sin perder audio.
+En la ventana de BASIC, el teclado tuvo un máximo de 1015 µs y la CPU no superó
+16905 µs por frame. Se conservan extractos de las mediciones en
+[`docs/performance-v03.txt`](docs/performance-v03.txt).
+
+Siguen pendientes la carga completa de juegos comerciales, las cargas múltiples,
+la cobertura física de todos los atajos y joysticks, y la valoración del sonido
+de cada juego. La instalación desde M5Launcher sigue pendiente; en esta tarea
+se escribió la partición identificada por USB con copia de respaldo.
 
 ## Límites conocidos
 
@@ -146,6 +208,6 @@ la implementación; todavía no acredita rendimiento ni audio correctos en hardw
 - El autoload espera unos seis segundos de emulación antes de reproducir la
   cinta; la duración deberá ajustarse si una ROM necesita más tiempo de arranque.
 
-**V0.2 corrige un fallo de carga reproducido y está compilada con pruebas de
-núcleo y de integración con ROM. La compatibilidad de juegos y la validación
-física de esta versión siguen pendientes.**
+**V0.3 está compilada e instalada con pruebas de núcleo, ROM, audio concurrente
+y rendimiento físico. La compatibilidad y el sonido de cada juego concreto
+requieren su propia comprobación.**

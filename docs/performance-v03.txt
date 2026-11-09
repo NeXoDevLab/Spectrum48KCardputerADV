@@ -1,0 +1,15 @@
+Cardputer ADV / ZX Spectrum V0.3 / 2026-11-09
+
+Commands:
+python3 scripts/device-diagnostics.py PORT b
+python3 scripts/device-diagnostics.py PORT ? --seconds 8
+
+ZX AUDIO TEST frames=250 ms=4953 cpu_avg_us=6462 cpu_max_us=7638 input_max_us=844 packets=496 underruns=0 dropped=0 errors=0 timeouts=0 gap_us=11041 filter_us=20267 spi_us=14302
+ZX-ADV V0.3 pc=15fe frames=905 ms=24250 tape=0 pos=0 fast=0 heap=195672 cpu_us=11230 cpu_max_us=16905 input_us=96 input_max_us=122 audio_samples=637 audio_packets=2296 underruns=0 dropped=0 audio_errors=0 gap_us=11041 pace_timeouts=0 lcd=573 filter_us=25483 spi_us=15654 sd_reads=0 sd_max_us=0
+ZX-ADV V0.3 pc=15f8 frames=956 ms=25269 tape=0 pos=0 fast=0 heap=195704 cpu_us=11256 cpu_max_us=16905 input_us=76 input_max_us=1015 audio_samples=611 audio_packets=2398 underruns=0 dropped=0 audio_errors=0 gap_us=11053 pace_timeouts=0 lcd=594 filter_us=22220 spi_us=15162 sd_reads=0 sd_max_us=0
+ZX-ADV V0.3 pc=15e1 frames=1008 ms=26309 tape=0 pos=0 fast=0 heap=196200 cpu_us=10208 cpu_max_us=16905 input_us=91 input_max_us=1015 audio_samples=584 audio_packets=2502 underruns=0 dropped=0 audio_errors=0 gap_us=11053 pace_timeouts=0 lcd=616 filter_us=22250 spi_us=15088 sd_reads=0 sd_max_us=0
+ZX-ADV V0.3 pc=15fb frames=1059 ms=27330 tape=0 pos=0 fast=0 heap=195704 cpu_us=11284 cpu_max_us=16905 input_us=77 input_max_us=1015 audio_samples=558 audio_packets=2604 underruns=0 dropped=0 audio_errors=0 gap_us=11053 pace_timeouts=0 lcd=640 filter_us=22150 spi_us=15593 sd_reads=0 sd_max_us=0
+ZX-ADV V0.3 pc=15de frames=1111 ms=28370 tape=0 pos=0 fast=0 heap=195704 cpu_us=11220 cpu_max_us=16905 input_us=79 input_max_us=1015 audio_samples=532 audio_packets=2708 underruns=0 dropped=0 audio_errors=0 gap_us=11053 pace_timeouts=0 lcd=666 filter_us=22284 spi_us=15314 sd_reads=0 sd_max_us=0
+ZX-ADV V0.3 pc=162c frames=1163 ms=29410 tape=0 pos=0 fast=0 heap=195704 cpu_us=11341 cpu_max_us=16905 input_us=73 input_max_us=1015 audio_samples=505 audio_packets=2812 underruns=0 dropped=0 audio_errors=0 gap_us=11053 pace_timeouts=0 lcd=692 filter_us=22200 spi_us=15462 sd_reads=0 sd_max_us=0
+ZX-ADV V0.3 pc=15e6 frames=1215 ms=30440 tape=0 pos=0 fast=0 heap=195704 cpu_us=8207 cpu_max_us=16905 input_us=78 input_max_us=1015 audio_samples=638 audio_packets=2915 underruns=0 dropped=0 audio_errors=0 gap_us=11053 pace_timeouts=0 lcd=718 filter_us=23322 spi_us=15548 sd_reads=0 sd_max_us=0
+ZX-ADV V0.3 pc=10ac frames=1267 ms=31480 tape=0 pos=0 fast=0 heap=196152 cpu_us=10201 cpu_max_us=16905 input_us=89 input_max_us=1015 audio_samples=612 audio_packets=3019 underruns=0 dropped=0 audio_errors=0 gap_us=11053 pace_timeouts=0 lcd=744 filter_us=22271 spi_us=15306 sd_reads=0 sd_max_us=0

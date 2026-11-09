@@ -1,4 +1,8 @@
 // Local port: full I/O addresses, including OUTI/OUTD high byte.
+#if defined(__GNUC__) && defined(ARDUINO_ARCH_ESP32)
+// Local build change: optimize the interpreter for speed on the ESP32-S3.
+#pragma GCC optimize("O3")
+#endif
 #include "z80.h"
 
 // MARK: timings

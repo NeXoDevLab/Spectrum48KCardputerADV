@@ -15,9 +15,11 @@ struct Machine {
   uint8_t rows[8]{}, joystick=0, border=7, ula=0;
   uint8_t borders[312]{};
   uint32_t frameCycle=0, frames=0, samplePhase=0;
+  uint32_t nextScanline=224;
+  uint16_t scanline=0;
   int32_t audioFilter=0, lastLevel=0;
   Tape *tape=nullptr;
-  bool tapeSound=true;
+  bool tapeSound=true,audioEnabled=true;
   using AudioSink=void(*)(void*,int16_t);
   AudioSink audio=nullptr;
   void *audioContext=nullptr;
@@ -38,6 +40,22 @@ uint8_t flags(const z80 &cpu);
 // Screen memory contains 6144 bitmap bytes followed by 768 attribute bytes.
 uint8_t pixel(const uint8_t *screen,unsigned x,unsigned y,bool flash);
 uint16_t colour(uint8_t index);
+// Separable area filter with three reusable source rows, owned by each viewer.
+// Allocate persistently on the device rather than on its small task stacks.
+#define SPECTRUM_SCALER_WORKSPACE 1
+class DisplayScaler {
+public:
+  void begin(const uint8_t *screen,const uint8_t *borders,bool flash,bool border);
+  void row(unsigned y,uint16_t *out);
+private:
+  struct FilteredRow {uint32_t rb[240]{};uint16_t green[240]{};int source=-1;};
+  FilteredRow rows_[3];
+  uint32_t decodedRb_[320]{};
+  uint16_t decodedGreen_[320]{};
+  const uint8_t *screen_=nullptr,*borders_=nullptr;
+  bool flash_=false,border_=false;
+  FilteredRow &horizontal(unsigned y);
+};
 // Area filtered downscale: full active screen, or 320x240 with the border.
 void renderRow(const uint8_t *screen,const uint8_t *borders,bool flash,
                bool showBorder,unsigned y,uint16_t *out);

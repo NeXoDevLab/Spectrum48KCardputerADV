@@ -18,10 +18,10 @@ Necesitas un Cardputer ADV, una microSD FAT32, una ROM de Spectrum 48K de
        └── Z80/
    ```
 
-   Puedes extraer el ZIP `Spectrum48K-CardputerADV-V0.2-SD.zip` en la raíz de
+   Puedes extraer el ZIP `Spectrum48K-CardputerADV-V0.3-SD.zip` en la raíz de
    la tarjeta: incluye las carpetas y el BIN, sin ROM ni juegos. Las carpetas
    de Amstrad pueden convivir con estas en la misma SD.
-3. Si tienes M5Launcher, copia `Spectrum48K-CardputerADV-V0.2-app.bin` y elige
+3. Si tienes M5Launcher, copia `Spectrum48K-CardputerADV-V0.3-app.bin` y elige
    instalarlo desde Launcher. Conserva el firmware de Amstrad en la SD para
    poder cambiar entre ambos con Launcher.
 4. Reinicia y espera el arranque de BASIC. Si falla SD o ROM aparece un mensaje.
@@ -34,6 +34,9 @@ había en `GAMES/SNAPSHOTS`. Si el destino ya existe, conserva ambos archivos
 en sus ubicaciones; no los sobrescribe. Respeta las subcarpetas personales.
 El selector oculta los auxiliares `._` de macOS y mantiene visibles las
 carpetas aunque una lista de juegos supere el límite de 128 entradas.
+
+V0.3 mantiene esa estructura. Para actualizar desde V0.2 basta con instalar
+el BIN V0.3; no necesitas cambiar la ROM ni volver a copiar los juegos.
 
 El BIN es solo la aplicación. Para una primera instalación sin Launcher,
 compila y sube con Arduino IDE/CLI: así se generan también el arranque y la
@@ -130,6 +133,30 @@ El puerto USB acepta estos caracteres, sin necesitar Enter:
 | `r` | Reiniciar en BASIC |
 | `m` | Abrir el selector |
 | `c` | Captura RGB565 de la imagen emulada a 240×135 |
+| `b` | Prueba de tono por Z80 durante unos cinco segundos; después continúa el estado anterior |
+
+V0.3 separa la generación de muestras de la tarea que las entrega al altavoz.
+La reserva de unos 40 ms absorbe pausas cortas de la SD o del teclado. La
+velocidad original se regula con el reloj de audio de 16 kHz, mientras la LCD
+se actualiza de forma independiente. Fn+F sigue activando el modo rápido y
+silenciando el audio.
+
+El diagnóstico `?` incluye `underruns` (cola sin datos durante más de 20 ms),
+`dropped` (muestras descartadas por cola llena), `audio_errors`, `gap_us` y
+`pace_timeouts`. También muestra el tiempo de CPU, teclado, filtro LCD, SPI y
+la lectura más lenta de la SD. Un salto en estos contadores ayuda a localizar
+el componente que se atasca; no equivale a una medición acústica del altavoz.
+
+En macOS/Linux puedes leerlos sin dependencias adicionales:
+
+```sh
+python3 scripts/device-diagnostics.py /dev/cu.usbmodemTU_PUERTO '?' --seconds 10
+python3 scripts/device-diagnostics.py /dev/cu.usbmodemTU_PUERTO b
+```
+
+La segunda orden pausa temporalmente la máquina actual, ejecuta un Z80
+sintético con un tono, teclado y pantalla activos, informa de los contadores
+y continúa la máquina anterior. No modifica ROMs ni juegos de la SD.
 
 Para guardar PNG desde el dispositivo, con pyserial y Pillow disponibles:
 
@@ -139,7 +166,7 @@ python3 scripts/capture-device.py /dev/cu.usbmodemTU_PUERTO captura.png
 
 La captura contiene la imagen emulada, sin los avisos superpuestos de volumen
 o controles. La transferencia pausa brevemente emulación y audio. Cierra antes
-el monitor serie y el selector. No se incluyen capturas físicas en V0.2.
+el monitor serie y el selector.
 
 ## Pruebas en ordenador
 
@@ -160,6 +187,12 @@ sh tests/run_host.sh /ruta/a/48.ROM
 Además de las pruebas sintéticas, ejecuta LD-BYTES con cabeceras y datos,
 rechaza un checksum incorrecto y carga un programa BASIC desde TAP y TZX hasta
 verificar su ejecución. La ROM solo se lee de esa ruta y no se distribuye.
+
+`tests/realtime.cpp` comprueba la propiedad de los paquetes entre dos hilos,
+60 segundos de audio con pausas simuladas de 25 ms, la frecuencia exacta de
+muestras y la coincidencia de todos los píxeles con el filtro anterior.
+`sh tests/run_benchmark.sh` mide CPU y escalado en el ordenador; esos tiempos
+no son una estimación de los tiempos del ESP32.
 
 [Estado de validación](../VALIDACION.md) ·
 [Documentación oficial del Cardputer ADV](https://docs.m5stack.com/en/core/Cardputer-Adv).

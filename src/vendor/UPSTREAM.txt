@@ -1,3 +1,4 @@
 https://github.com/superzazu/z80
 Commit: d64fe10a2274e5e40019b1086bf7d8990cbc5f23
 Local changes: 16-bit I/O port addresses for the Spectrum keyboard matrix.
+ESP32 builds optimize the CPU interpreter with GCC O3; other targets retain their build flags.
