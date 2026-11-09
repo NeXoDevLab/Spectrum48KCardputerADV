@@ -102,7 +102,19 @@ const char *controlName() {
   switch(controls) {case Controls::Kempston:return "Kempston";case Controls::Sinclair:return "Sinclair 1";
     case Controls::Cursor:return "Cursor";default:return "QAOP+espacio";}
 }
-void notify(const String &text) {notice=text;noticeUntil=millis()+2000;Serial.println(text);}
+#ifdef ZX_USB_RECORDING
+bool recording=false,collecting=false;
+String recordingPath;
+uint32_t recordSequence=0,recordSamples=0;
+int16_t recordPcm[512];unsigned recordUsed=0;
+unsigned recordKeyTicks=0;char recordKey=0;
+#endif
+void notify(const String &text) {notice=text;noticeUntil=millis()+2000;
+#ifdef ZX_USB_RECORDING
+  if(recording) return;
+#endif
+  Serial.println(text);
+}
 void silence() {
   audioActive.store(false,std::memory_order_release);
   if(audioMutex) xSemaphoreTake(audioMutex,portMAX_DELAY);
@@ -114,6 +126,9 @@ void silence() {
   if(audioMutex) xSemaphoreGive(audioMutex);
 }
 void audioSink(void*,int16_t sample) {
+#ifdef ZX_USB_RECORDING
+  if(recording) {if(recordUsed<512) recordPcm[recordUsed++]=sample;return;}
+#endif
   audioQueue.push(sample);
 }
 void audioWorker(void*) {
@@ -365,6 +380,43 @@ void capture() {
   }
   Serial.println("\nZXFRAME END");Serial.setTxTimeoutMs(2);deadline=micros();
 }
+#ifdef ZX_USB_RECORDING
+bool usbWrite(const uint8_t *data,unsigned size) {
+  while(size) {const auto sent=Serial.write(data,size);if(!sent) {recording=false;Serial.setTxTimeoutMs(2);return false;}data+=sent;size-=sent;}
+  return true;
+}
+void recordFrame() {
+  static DisplayScaler scaler;uint16_t line[240];
+  auto runs=[&](auto emit) {
+    scaler.begin(machine.memory+0x4000,machine.borders,(machine.frames/16)&1,border||tape.playing());
+    uint16_t previous=0;uint8_t count=0;
+    for(unsigned y=0;y<135;++y) {scaler.row(y,line);
+      for(auto colour:line) {
+        if(count && (colour!=previous || count==255)) {if(!emit(count,previous)) return false;count=0;}
+        previous=colour;++count;
+      }
+    }
+    return !count || emit(count,previous);
+  };
+  unsigned bytes=0;const bool video=!(recordSequence&1);
+  if(video) runs([&](uint8_t,uint16_t) {bytes+=3;return true;});
+  uint8_t header[28]={'Z','X','C','R'};
+  auto little=[](uint8_t *p,uint32_t n,unsigned length) {for(unsigned i=0;i<length;++i) p[i]=n>>(i*8);};
+  little(header+4,recordSequence,4);little(header+8,recordSamples,4);little(header+12,recordUsed,2);
+  little(header+14,(tape.playing()?1:0)|(tapeFile.size()?2:0)|(tape.error()?4:0),2);little(header+16,bytes,4);
+  little(header+20,tape.position(),4);little(header+24,tapeFile.size(),4);
+  if(!usbWrite(header,28) || !usbWrite(reinterpret_cast<uint8_t*>(recordPcm),recordUsed*2)) return;
+  if(video) {uint8_t buffer[510];unsigned used=0;
+    const bool ok=runs([&](uint8_t count,uint16_t colour) {
+      buffer[used++]=count;buffer[used++]=colour;buffer[used++]=colour>>8;
+      if(used<sizeof(buffer)) return true;const bool sent=usbWrite(buffer,used);used=0;return sent;
+    });
+    if(!ok || (used && !usbWrite(buffer,used))) return;
+  }
+  recordSamples+=recordUsed;recordUsed=0;++recordSequence;
+}
+#endif
+
 void audioProbe() {
   // Use a separate synthetic machine: the current game, ROM and tape state
   // remain paused in the main machine and resume after the five-second probe.
@@ -431,6 +483,32 @@ void tick() {
   uint32_t started=micros();keyboard();inputUs=micros()-started;inputMaxUs=std::max(inputMaxUs,inputUs);
   while(Serial.available()) {
     const char cmd=Serial.read();
+#ifdef ZX_USB_RECORDING
+    if(recording) {
+      if(cmd=='!') {recording=false;silence();Serial.println("ZXREC-END");Serial.setTxTimeoutMs(2);}
+      else if(cmd!='\n' && cmd!='\r') {recordKey=cmd;recordKeyTicks=5;}
+      continue;
+    }
+    if(collecting) {
+      if(cmd=='\n') {
+        collecting=false;
+        if(recordingPath.startsWith("/SPECTRUM/GAMES/") && recordingPath.indexOf("/../")<0 && loadFile(recordingPath)) {
+          silence();fast=false;recordSequence=recordSamples=recordUsed=0;recording=true;
+          Serial.setTxTimeoutMs(1000);Serial.println("ZXREC2 240 135 16000 3500000 69888");
+        } else Serial.println("ZXREC-ERROR");
+      } else if(cmd!='\r' && recordingPath.length()<240) recordingPath+=cmd;
+      continue;
+    }
+    if(cmd=='@') {collecting=true;recordingPath="";continue;}
+#endif
+    if(cmd=='l') {
+      silence();Serial.setTxTimeoutMs(100);
+      for(const char *dir:{"/SPECTRUM/GAMES","/SPECTRUM/GAMES/TAP","/SPECTRUM/GAMES/TZX","/SPECTRUM/GAMES/SNA","/SPECTRUM/GAMES/Z80"}) {
+        auto files=spectrum_files::list(storage,dir);
+        for(const auto &entry:files.entries) if(!entry.directory) Serial.printf("MEDIA %s/%s\n",dir,entry.name.c_str());
+      }
+      Serial.println("MEDIA-END");Serial.setTxTimeoutMs(2);
+    }
     if(cmd=='?') Serial.printf("ZX-ADV V0.3 pc=%04x frames=%u ms=%u tape=%u pos=%u fast=%u heap=%u cpu_us=%u cpu_max_us=%u input_us=%u input_max_us=%u audio_samples=%u audio_packets=%u underruns=%u dropped=%u audio_errors=%u gap_us=%u pace_timeouts=%u lcd=%u filter_us=%u spi_us=%u sd_reads=%u sd_max_us=%u\n",
       machine.cpu.pc,machine.frames,millis(),tape.playing(),tape.position(),fast,ESP.getFreeHeap(),cpuUs,cpuMaxUs,inputUs,inputMaxUs,
       audioQueue.buffered(),audioPackets.load(),audioUnderruns.load(),audioQueue.dropped(),audioErrors.load(),audioMaxGapUs.load(),audioPaceTimeouts,
@@ -440,6 +518,13 @@ void tick() {
     if(cmd=='c') capture();
     if(cmd=='b') audioProbe();
   }
+#ifdef ZX_USB_RECORDING
+  if(recording) {
+    machine.audioEnabled=true;
+    if(recordKeyTicks) {machine.ascii(recordKey);--recordKeyTicks;}
+    machine.runFrame();recordFrame();present();return;
+  }
+#endif
   machine.audioEnabled=!fast;
   if(!fast && !audioActive.exchange(true,std::memory_order_acq_rel)) xTaskNotifyGive(audioTaskHandle);
   started=micros();machine.runFrame();cpuUs=micros()-started;cpuMaxUs=std::max(cpuMaxUs,cpuUs);

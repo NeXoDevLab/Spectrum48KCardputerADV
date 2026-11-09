@@ -61,7 +61,7 @@ con una ROM externa, sin incluir la ROM en el proyecto ni en el firmware.
 ## Resultado comprobado
 
 - Compilación Arduino para **M5Stack Cardputer ADV / ESP32-S3**, finalizada sin errores.
-- Programa: **677467 bytes**, 20% del perfil; BIN de aplicación: **677616 bytes**.
+- Programa: **677963 bytes**, 20% del perfil; BIN de aplicación: **678112 bytes**.
 - Variables globales: **122764 bytes**, 37% de SRAM; quedan 204916 bytes antes
   de las reservas dinámicas de los controladores y de las tareas.
 - `esptool` reconoce ESP32-S3 y flash de 8 MB y verifica el hash al instalar.
@@ -211,3 +211,23 @@ se escribió la partición identificada por USB con copia de respaldo.
 **V0.3 está compilada e instalada con pruebas de núcleo, ROM, audio concurrente
 y rendimiento físico. La compatibilidad y el sonido de cada juego concreto
 requieren su propia comprobación.**
+
+## Galería de juegos
+
+Se añade el modo de compilación `ZX_USB_RECORDING` para transmitir imagen
+RGB565 por RLE y PCM de la misma ejecución. El firmware normal no activa ese
+modo. El comando USB `l` lista los medios instalados; el modo de grabación
+recibe `@/SPECTRUM/GAMES/...` y finaliza con `!`. Se restaura la compilación
+normal después de las sesiones. Las muestras y frames se validan en el host
+por secuencia y posición; los JSON y `docs/media/README.md` describen los
+vídeos y sus límites.
+
+Las sesiones completas de la SD finalizan a los 103,973 s (Oh Mummy) y
+316,113 s (Phantomas 2), con 5207 y 15831 frames de emulación respectivamente.
+Se grabaron todos los bloques hasta EOF y 20 segundos posteriores. Oh Mummy
+muestra su pantalla de instrucciones; Phantomas 2 conserva su ilustración al
+final de la toma. Esto documenta las pantallas observadas, no una partida
+completa ni una certificación adicional de compatibilidad. Se descartó una
+toma de Phantomas 2 tras detectar un paquete USB incompleto; la publicada
+pasa las comprobaciones de secuencias y muestras de principio a fin.
+La compilación normal V0.3 se restauró al terminar y su hash se verificó.

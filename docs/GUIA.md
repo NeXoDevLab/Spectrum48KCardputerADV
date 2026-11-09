@@ -133,6 +133,7 @@ El puerto USB acepta estos caracteres, sin necesitar Enter:
 | `r` | Reiniciar en BASIC |
 | `m` | Abrir el selector |
 | `c` | Captura RGB565 de la imagen emulada a 240×135 |
+| `l` | Listar los juegos de la SD, por formato |
 | `b` | Prueba de tono por Z80 durante unos cinco segundos; después continúa el estado anterior |
 
 V0.3 separa la generación de muestras de la tarea que las entrega al altavoz.
@@ -196,3 +197,5 @@ no son una estimación de los tiempos del ESP32.
 
 [Estado de validación](../VALIDACION.md) ·
 [Documentación oficial del Cardputer ADV](https://docs.m5stack.com/en/core/Cardputer-Adv).
+
+[Galería de capturas y vídeos reales](https://nexodevlab.github.io/Spectrum48KCardputerADV/).

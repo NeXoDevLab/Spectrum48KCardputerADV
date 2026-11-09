@@ -1,0 +1,29 @@
+{
+  "seconds": 103.973375,
+  "frames": 5207,
+  "video_frames": 2604,
+  "protocol": "ZXREC2 240 135 16000 3500000 69888",
+  "timing": "Original emulated PAL clock; USB transfer may take longer than playback",
+  "ending": "20 seconds after tape EOF",
+  "full_tape_unabridged": true,
+  "game": "Oh Mummy",
+  "video": "oh-mummy-cardputer-adv.mp4",
+  "captured_firmware": "V0.3 USB recording build",
+  "source_sha256": "805bbb105658883e90e4a8800d337071fe1a7bc8189b753352a8017b259b552f",
+  "sha256": "8eac069be1db566956a4b628cc0043a86df25206c803f488d861757f6653fd72",
+  "photograph": "User-supplied Cardputer ADV photograph; M5Stack product image",
+  "photograph_source": "https://docs.m5stack.com/en/core/Cardputer-Adv",
+  "photograph_sha256": "43557534a73b2e8d71f2d2b279d134c0c01411c2d8f54960890f39d3a9f41b6f",
+  "canvas": [
+    880,
+    580
+  ],
+  "screen_rect": [
+    231,
+    54,
+    240,
+    135
+  ],
+  "audio": "Original AAC stream copied without re-encoding",
+  "audio_packets_sha256": "423171d5a0ab7fb89de84df8fa5e9971262fd81530faa76b514ee57b46023fa2"
+}

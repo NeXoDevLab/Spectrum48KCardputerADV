@@ -22,6 +22,24 @@ entre bloques conservaba mal el último flanco del checksum. Se ha reproducido
 el fallo y verificado la corrección con la rutina LD-BYTES de una ROM 48K y con
 un programa BASIC que carga y se ejecuta desde TAP y TZX.
 
+## Capturas y vídeos reales
+
+[**Abrir la galería de Spectrum**](https://nexodevlab.github.io/Spectrum48KCardputerADV/)
+
+| BASIC · V0.3 | Oh Mummy · carga | Phantomas 2 · final de cinta |
+| :---: | :---: | :---: |
+| <img src="docs/images/basic-v03.png" width="240" height="135" alt="BASIC del Spectrum capturado por USB"> | <img src="docs/images/oh-mummy-carga.png" width="240" height="135" alt="Carga real de Oh Mummy en el Cardputer"> | <img src="docs/images/phantomas-2-menu.png" width="240" height="135" alt="Pantalla final de Phantomas 2 desde TAP"> |
+
+| Oh Mummy | Phantomas 2 |
+| :---: | :---: |
+| <a href="https://nexodevlab.github.io/Spectrum48KCardputerADV/#oh-mummy"><img src="docs/media/oh-mummy-poster.png" width="400" alt="Ver la carga completa de Oh Mummy"></a> | <a href="https://nexodevlab.github.io/Spectrum48KCardputerADV/#phantomas-2"><img src="docs/media/phantomas-2-poster.png" width="400" alt="Ver la carga completa de Phantomas 2"></a> |
+
+Los dos reproductores están en una fila y sitúan la LCD de **240×135** dentro
+de la misma fotografía del Cardputer ADV utilizada para Amstrad. Imagen y
+sonido proceden de la ejecución en el dispositivo, grabada por USB con el modo
+de captura V0.3. Se conserva toda la cinta y 20 segundos después de su final.
+[Procedencia y metadatos](docs/media/README.md).
+
 ## Incluye
 
 - Z80, ROM de 16 KiB y RAM de 48 KiB. Memoria reservada sin necesitar PSRAM.

@@ -1,0 +1,42 @@
+[
+  {
+    "image": "basic-v03.png",
+    "width": 240,
+    "height": 135,
+    "source": "Cardputer ADV USB RGB565",
+    "firmware": "V0.3",
+    "sha256": "02a6bea4a1bed944c239104b83d8c9924a2ecf8d8d648bbe22c3e78f405b8cb6"
+  },
+  {
+    "image": "oh-mummy-carga.png",
+    "width": 240,
+    "height": 135,
+    "source": "Cardputer ADV USB RGB565",
+    "firmware": "V0.3 recording build",
+    "sha256": "12c1efd92957d6d5297bff32361e395894f9bbfd55148cbd55ad2f37bbdc11ac"
+  },
+  {
+    "image": "oh-mummy-menu.png",
+    "width": 240,
+    "height": 135,
+    "source": "Cardputer ADV USB RGB565",
+    "firmware": "V0.3 recording build",
+    "sha256": "81f370f50ace365817144125f3cd92cf5ef537051360d07d71764989520180ef"
+  },
+  {
+    "image": "phantomas-2-carga.png",
+    "width": 240,
+    "height": 135,
+    "source": "Cardputer ADV USB RGB565",
+    "firmware": "V0.3 recording build",
+    "sha256": "19a25d963488e334a7159a9c3b7850d6b1ae11c897b92d8535c64a778ef00f69"
+  },
+  {
+    "image": "phantomas-2-menu.png",
+    "width": 240,
+    "height": 135,
+    "source": "Cardputer ADV USB RGB565",
+    "firmware": "V0.3 recording build",
+    "sha256": "9470f057fbe92d7ddf828a00ba7b96d0c69c1c528c35de640eabad5ea8974a8f"
+  }
+]

@@ -7,3 +7,5 @@ tests/.build/
 *.tzx
 *.sna
 *.z80
+__pycache__/
+*.pyc

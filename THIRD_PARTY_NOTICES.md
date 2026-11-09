@@ -35,7 +35,15 @@ conservan las licencias incluidas en sus distribuciones. No se vendorizan aquí.
 - [Especificación TZX](https://worldofspectrum.net/TZXformat.html).
 - [Análisis de LD-BYTES de la ROM](https://skoolkid.github.io/rom/asm/0556.html).
 
-Las referencias documentan el comportamiento. No se distribuye la ROM del
-Spectrum, sus gráficos ni juegos. Las pruebas generan datos y programas
+Las referencias documentan el comportamiento. No se distribuyen ROMs ni archivos de juegos. Las pruebas generan datos y programas
 sintéticos. La prueba opcional `tests/rom_tap.cpp` lee una ROM externa que
 aporta quien ejecuta las pruebas; no la copia al proyecto ni al firmware.
+
+## Capturas de juegos y fotografía
+
+Las capturas de Oh Mummy y Phantomas 2 documentan su ejecución en el Cardputer
+con los TAP aportados por el usuario. No incluyen medios ejecutables. Los
+derechos de los juegos, sus imágenes y sonido corresponden a sus respectivos
+autores. La fotografía de M5Stack es la misma referencia facilitada para la
+galería de Amstrad; se usa como marco documental. La imagen de la LCD procede
+de la captura USB, no de una recreación generada. Véase `docs/media/README.md`.

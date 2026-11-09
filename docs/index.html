@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sinclair ZX Spectrum 48K en Cardputer ADV: capturas USB reales, carga completa de Oh Mummy y Phantomas 2 con sonido original.">
+<title>Sinclair ZX Spectrum 48K · Cardputer ADV</title>
+<style>
+  :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#111419;color:#ecedf2}
+  *{box-sizing:border-box}body{margin:0}main{max-width:1872px;margin:auto;padding:40px 24px 28px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  h1{font-size:clamp(24px,3vw,36px);letter-spacing:-.03em;margin:4px 0 10px}
+  p{line-height:1.6;margin:8px 0;color:#b8c1cf}a{color:#8dbbff;text-underline-offset:3px}
+  .tag{font-size:12px;font-weight:700;letter-spacing:.08em;color:#ffe85b}
+  nav{display:flex;gap:20px;flex-wrap:wrap}h2{font-size:20px;margin:0 0 20px}
+  section{margin-top:38px}.strip{display:flex;gap:24px;overflow-x:auto;padding:0 0 16px;scrollbar-color:#697488 #20252f}
+  .screens{justify-content:safe center}.screens figure{margin:0;flex:0 0 240px}
+  .screens img{display:block;width:240px;height:135px;image-rendering:pixelated;border:1px solid #424958}
+  figcaption{margin-top:10px;font-size:14px;color:#c4ccda}
+  .tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  button{border:1px solid #68758a;background:#1b2330;color:#fff;border-radius:7px;padding:9px 13px;cursor:pointer;font:inherit;font-size:14px}
+  button[aria-pressed="true"]{border-color:#ffe85b;color:#ffe85b}
+  .clip{margin:0;flex:0 0 880px;min-width:0}.clip video{display:block;width:880px;height:580px;background:white;border-radius:12px}
+  .clip figcaption{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .fit .clip{flex:0 0 calc((100% - 24px)/2)}.fit .clip video{width:100%;height:auto;aspect-ratio:880/580}
+  .hint{font-size:13px;margin:0 0 18px}footer{border-top:1px solid #343b47;margin-top:32px;padding-top:18px;font-size:13px}
+  details{margin-top:18px;color:#b8c1cf;line-height:1.6}summary{cursor:pointer}
+  @media(max-width:600px){main{padding:24px 16px}.strip{gap:16px}.fit .clip{flex-basis:calc((100% - 16px)/2)}.clip figcaption{font-size:12px}}
+</style>
+<main>
+  <header>
+    <div><span class="tag">V0.3 · CARDPUTER ADV</span><h1>Sinclair ZX Spectrum 48K</h1><p>Capturas reales y carga de cinta completa, con su sonido original.</p></div>
+    <nav><a href="https://github.com/NeXoDevLab/Spectrum48KCardputerADV">Proyecto y guía</a><a href="https://github.com/NeXoDevLab/Spectrum48KCardputerADV/releases/latest">Descargar firmware</a></nav>
+  </header>
+  <section id="capturas" aria-labelledby="screens-title">
+    <h2 id="screens-title">Capturas del Cardputer · V0.3</h2>
+    <div class="strip screens">
+      <figure><a href="images/basic-v03.png"><img src="images/basic-v03.png" width="240" height="135" alt="BASIC blanco y negro, captura USB real de V0.3"></a><figcaption>BASIC</figcaption></figure>
+      <figure><a href="images/oh-mummy-carga.png"><img src="images/oh-mummy-carga.png" width="240" height="135" alt="Oh Mummy durante la carga original en V0.3"></a><figcaption>Oh Mummy · carga</figcaption></figure>
+      <figure><a href="images/phantomas-2-menu.png"><img src="images/phantomas-2-menu.png" width="240" height="135" alt="Pantalla de Phantomas 2 tras terminar la cinta en V0.3"></a><figcaption>Phantomas 2 · final de cinta</figcaption></figure>
+      <figure><a href="images/oh-mummy-menu.png"><img src="images/oh-mummy-menu.png" width="240" height="135" alt="Oh Mummy tras terminar la carga"></a><figcaption>Oh Mummy · cargado</figcaption></figure>
+      <figure><a href="images/phantomas-2-carga.png"><img src="images/phantomas-2-carga.png" width="240" height="135" alt="Phantomas 2 durante la carga desde TAP"></a><figcaption>Phantomas 2 · carga</figcaption></figure>
+    </div>
+  </section>
+  <section id="videos" aria-labelledby="videos-title">
+    <h2 id="videos-title">Carga completa</h2>
+    <div class="tools" role="group" aria-label="Tamaño de los vídeos">
+      <button id="native" aria-pressed="true">Tamaño original · LCD 240×135</button>
+      <button id="fit" aria-pressed="false">Ajustar a la ventana</button>
+    </div>
+    <p class="hint">Los dos equipos están en una fila. Desplázala lateralmente si no caben completos.</p>
+    <div class="strip videos">
+      <figure class="clip" id="oh-mummy">
+        <video controls playsinline preload="none" width="880" height="580" poster="media/oh-mummy-poster.png" aria-label="Carga completa de Oh Mummy">
+          <source src="media/oh-mummy-cardputer-adv.mp4" type="video/mp4">
+          <a href="media/oh-mummy-cardputer-adv.mp4">Descargar vídeo de Oh Mummy</a>
+        </video>
+        <figcaption><span>Oh Mummy · 1:44</span><a href="media/oh-mummy-cardputer-adv.mp4" download>Descargar MP4</a></figcaption>
+      </figure>
+      <figure class="clip" id="phantomas-2">
+        <video controls playsinline preload="none" width="880" height="580" poster="media/phantomas-2-poster.png" aria-label="Carga completa de Phantomas 2">
+          <source src="media/phantomas-2-cardputer-adv.mp4" type="video/mp4">
+          <a href="media/phantomas-2-cardputer-adv.mp4">Descargar vídeo de Phantomas 2</a>
+        </video>
+        <figcaption><span>Phantomas 2 · 5:16</span><a href="media/phantomas-2-cardputer-adv.mp4" download>Descargar MP4</a></figcaption>
+      </figure>
+    </div>
+  </section>
+  <footer>
+    <p><strong>Para jugar:</strong> flechas impresas y espacio, sin mantener Fn. Se activa al cargar desde SD; Fn+J alterna con el teclado de BASIC.</p>
+    <details><summary>Procedencia de las capturas y vídeos</summary><p>Imagen y PCM capturados por USB desde el Cardputer ADV, ejecutando los juegos de su microSD con V0.3 y el modo de grabación. No se incluyen ROMs ni cintas. Los vídeos conservan la carga completa y sus pausas; la sincronización sigue el reloj PAL emulado. La transferencia USB puede tardar más que la reproducción. La fotografía del dispositivo es un marco: la imagen emulada ocupa la LCD a 240×135 y no es una filmación externa.</p><p><a href="media/README.md">Registro y condiciones de captura</a> · <a href="https://docs.m5stack.com/en/core/Cardputer-Adv">Fotografía: M5Stack</a> · <a href="https://github.com/NeXoDevLab/Spectrum48KCardputerADV/blob/main/VALIDACION.md">Validación</a></p></details>
+  </footer>
+</main>
+<script>
+  const buttons=[document.getElementById('native'),document.getElementById('fit')];
+  buttons.forEach((button,index)=>button.addEventListener('click',()=>{
+    document.body.classList.toggle('fit',Boolean(index));
+    buttons.forEach((item,n)=>item.setAttribute('aria-pressed',String(n===index)));
+  }));
+  const videos=[...document.querySelectorAll('video')];
+  videos.forEach(video=>video.addEventListener('play',()=>videos.forEach(other=>{if(other!==video)other.pause();})));
+</script>
+</html>
